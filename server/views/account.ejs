@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../public/css/account.css">
+  <title>FLIP FLOP</title>
+</head>
+
+<body>
+  <header>
+    <section>
+      <h1>FLIP FLOP</h1>
+      <span>
+        <a href="/account">PROFILE </a>
+      </span>
+      <span>
+        <a href="/newsfeed/<%=userInfo[0].user_id%>">/ FEED </a>
+      </span>
+      <span>
+        <a href="/logout">/ LOG OUT</a>
+      </span>
+    </section>
+
+    <section class='profileInfo'>
+      <img src="<%= userInfo[0].profile_img %>" alt="" id='avatar'>
+      <section>
+        <span><%= userData.email  %></span>
+        <p>CHANGE AVATAR</p>
+        <form action="/profileAvatar" method="post" enctype="multipart/form-data">
+          <input type="file" name="file-to-upload" />
+          <button type="submit">Submit</button>
+        </form>
+      </section>
+      <ul class="friends">
+        <li>FRIEND REQUEST</li>
+        <% for(let i = friendRequest.length - 1; i >= 0; i--) { %>
+        <li>
+          <span><%= friendRequest[i].first_name %></span>
+          <button type="button" data-id='<%= friendRequest[i].friends_id %>' id="ACCEPT">✅ ACCEPT</button>
+          <button type="button" data-id='<%= friendRequest[i].friends_id %>' id="DECLINE">❌ DECLINE</button>
+        </li>
+        <% } %>
+      </ul>
+      <ul class="friends">
+        <li>MY FRIENDS</li>
+        <% friendsList.forEach(friend => { %>
+        <li>
+          <a href="/friend/<%= friend.user_id %>">
+            @<%= friend.first_name %>
+          </a>
+        </li>
+        <% }) %>
+      </ul>
+
+    </section>
+  </header>
+  <section class="addPic">
+    <h3>Add a Pic to your Flop</h3>
+    <form action="/profile" method="post" enctype="multipart/form-data">
+      <input type="text" name="description" placeholder="Description">
+      <input type="file" name="file-to-upload" />
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+
+  <section id='flex-container'>
+
+
+
+
+    <ul id='images'>
+      <% for(let i = userInfo.length - 1; i >= 0; i--) {  %>
+      <li>
+        <a href="/individualUserImg/<%= userInfo[i].img_post_id %>">
+          <img src="<%= userInfo[i].img %>" alt="">
+        </a>
+      </li>
+      <li>
+        <a href="/individualUserImg/<%= userInfo[i].img_post_id %>">
+          <span><%= userInfo[i].img_likes %></span>
+          <span>❤️</span>
+          <% for(let j = 0; j < commentCount.length; j++) {%>
+          <% if(commentCount[j].image_commented_on_id == userInfo[i].img_post_id) { %>
+          <%= commentCount[j].count %> 💬
+          <% } %>
+          <% } %>
+        </a>
+      </li>
+      <li>
+        <p>
+          <%= userInfo[i].description %>
+        </p>
+      </li>
+      <% } %>
+    </ul>
+
+
+  </section>
+
+
+  <script type="text/javascript" src="../public/account.js">
+
+  </script>
+</body>
+
+</html>

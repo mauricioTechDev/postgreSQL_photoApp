@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../public/css/account.css">
+  <title>FLIP FLOP</title>
+</head>
+
+<body>
+  <header>
+    <h1>FLIP FLOP</h1>
+    <span>
+      <a href="/account">PROFILE </a>
+    </span>
+    <span>
+      <a href="/newsfeed/<%=userData.user_id%>">/ FEED </a>
+    </span>
+    <span>
+      <a href="/logout">/ LOG OUT</a>
+    </span>
+
+  </header>
+
+
+
+  <section id="flex-container">
+    <a href="/account">
+      <p data-id='<%= individualUserImg[0].img_post_id %>' id="delete">DELETE IMAGE</p>
+    </a>
+    <section>
+      <img src="../<%= individualUserImg[0].img %>" alt="">
+    </section>
+    <p>
+      <span><%= individualUserImg[0].img_likes %></span>
+      <span data-id='<%= individualUserImg[0].img_post_id %>' id='heart'>❤️</span>
+      <span>
+        <% for(let j = 0; j < commentCount.length; j++) {%>
+        <% if(commentCount[j].image_commented_on_id == individualUserImg[0].img_post_id) { %>
+        <%= commentCount[j].count %> 💬
+        <% } %>
+        <% } %>
+      </span>
+    </p>
+
+    <p><%= individualUserImg[0].description %></p>
+    <form action="/comment" method="post">
+      <input type="text" name="comment" placeholder="Comment">
+      <button type="submit">Comment</button>
+    </form>
+    <ul>
+      <% for(let i = individualUserImg.length - 1; i >= 0; i--) {%>
+      <li>
+        <p>
+          <% for(let j = 0; j < userNames.length; j++) { %>
+          <% if(userNames[j].user_id == individualUserImg[i].commenter_user_id) { %>
+          <%= userNames[j].first_name %>
+          <% } %>
+          <% } %>
+        </p>
+        <span><%= individualUserImg[i].comment %></span>
+      </li>
+      <% } %>
+    </ul>
+  </section>
+
+
+
+  <script type="text/javascript" src="../public/individualUserImg.js">
+
+  </script>
+</body>
+
+</html>

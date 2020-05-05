@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../public/css/account.css">
+  <title>FLIP FLOP</title>
+</head>
+
+<body>
+  <header>
+    <section>
+      <h1>FLIP FLOP</h1>
+      <span>
+        <a href="/account">PROFILE</a>
+      </span>
+
+      <span>
+        <a href="/newsfeed/<%=userData.user_id%>">/ FEED</a>
+      </span>
+      <span>
+        <a href="/logout">/ LOG OUT</a>
+      </span>
+    </section>
+    <section>
+      <img src="<%= friend.profile_img %>" alt="">
+      <h2><%= friend.first_name  %></h2>
+    </section>
+  </header>
+
+
+
+  <section id="flex-container">
+    <ul>
+      <% for(let i = friendsPicture.length - 1; i >= 0; i--) {  %>
+      <li>
+        <a href="/individualPicture/<%= friendsPicture[i].img_post_id %>"">
+              <img src=" ../<%= friendsPicture[i].img %>" alt="">
+        </a>
+      </li>
+      <li>
+
+        <span><%= friendsPicture[i].img_likes %></span>
+        <span data-id="<%= friendsPicture[i].img_post_id %>" id="heart">❤️</span>
+        <span> <a href="/individualPicture/<%= friendsPicture[i].img_post_id %>">
+            <% for(let j = 0; j < commentCount.length; j++) {%>
+            <% if(commentCount[j].image_commented_on_id == friendsPicture[i].img_post_id) { %>
+            <%= commentCount[j].count %> 💬
+            <% } %>
+            <% } %>
+          </a> </span>
+      </li>
+      <li>
+        <p><%= friendsPicture[i].description %></p>
+      </li>
+      <% } %>
+
+    </ul>
+
+  </section>
+
+
+
+
+  <script type="text/javascript" src="../public/friends.js">
+
+  </script>
+
+</body>
+
+</html>

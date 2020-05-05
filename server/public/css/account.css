@@ -1,0 +1,75 @@
+h1{
+  font-size: 50px
+}
+.profileInfo{
+  display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      background-color: #808080eb;
+}
+.addPic{
+      text-align: center;
+}
+ul{
+  list-style-type: none;
+  padding-left: 2px;
+    padding-right: 3%;
+    text-align: center;
+}
+
+#flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+  }
+  #images{
+    flex: 53%;
+/* max-width: 34%; */
+padding: 0 4px;
+text-align: center;
+list-style: none;
+
+  }
+  .friends{
+    flex: 3%;
+    /* max-width: 34%; */
+    padding: 0 20px;
+    text-align: center;
+    list-style: none;
+  }
+img{
+  flex: 25%;
+max-width: 100%;
+padding: 0 4px;
+}
+img:hover{
+  box-shadow: 10px 10px 5px #515151d9;
+  -moz-box-shadow: 10px 10px 10px #515151d9;
+-webkit-box-shadow: 10px 10px 10px #515151d9;
+}
+
+
+#avatar{
+  width: 18%;
+border-radius: 40%;
+border: 3px solid orange;
+}
+a{
+  color: #000000;
+font-size: x-large;
+text-decoration: underline;
+font-style: italic;
+}
+body{
+      background-color: orange;
+}
+form{
+  margin-top: 1.5%;
+}
+/*
+ul {
+  display: flex;
+flex-wrap: wrap;
+align-items: flex-start;
+} */

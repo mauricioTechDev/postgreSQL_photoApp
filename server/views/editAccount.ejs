@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+
+<body>
+  <header>
+    <h1>EDIT ACCOUNT</h1>
+    <span> <a href="/account">PROFILE</a> </span>
+
+
+  </header>
+  <section>
+    <span><a href="/logout">Log Out</a></span>
+    <h2><%= userData.email  %></h2>
+    <img src="<%= userInfo.profile_img %>" alt="">
+    <span>
+      <a href="/newsfeed/<%=userInfo.user_id%>"> News Feed </a>
+    </span>
+  </section>
+
+</body>
+
+</html>
