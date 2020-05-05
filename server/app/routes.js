@@ -106,21 +106,7 @@ module.exports = function(app, pool, multer) {
       console.error(err.message);
     }
   })
-  // app.delete("/profile", async (req, res) => {
-  //   try {
-  //     const {
-  //       img_post_id
-  //     } = req.body.img_post_id;
-  //
-  //     const deleteTodo = await pool.query(
-  //       "DELETE FROM img_post WHERE img_post_id = $1",
-  //       [img_post_id]
-  //     );
-  //     res.json("Todo was deleted")
-  //   } catch (err) {
-  //     console.error(err.message);
-  //   }
-  // })
+
 
   // ================================
   // ROUTE TO UPLOADE PROFILE PICTURE
@@ -395,35 +381,7 @@ module.exports = function(app, pool, multer) {
       console.error(err.message);
     }
   })
-  // app.get('/friend/:friendId', async(req, res) => {
-  //   try {
-  //     let url = req._parsedOriginalUrl._raw
-  //     console.log(url);
-  //     let friendId;
-  //     for(let i = url.length - 1; i > 0; i--){
-  //       if(url[i] == '/'){
-  //         friendId = url.slice(i+1)
-  //         break;
-  //       }
-  //     }
-  //     console.log(friendId);
-  //     const friend = await pool.query(`
-  //       SELECT * FROM user_account
-  //       WHERE user_id = $1`,[friendId])
-  //       // console.log('Friend Info', friend);
-  //     const friendsPicture = await pool.query(`
-  //       SELECT * FROM img_post
-  //       WHERE id_of_img_poster = $1`, [friendId])
-  //       // console.log('Friends pictures', friendsPicture);
-  //       res.render('friends.ejs',{
-  //         userData: req.user[0],
-  //         friend: friend.rows[0],
-  //         friendsPicture: friendsPicture.rows,
-  //       })
-  //   } catch (err) {
-  //     console.error(err.message);
-  //   }
-  // })
+
   app.put('/friend/addHeart', async(req, res) =>{
     try {
       console.log(req.body);
@@ -442,89 +400,6 @@ module.exports = function(app, pool, multer) {
 
     }
   })
-
-
-
-
-
-
-
-  app.post('/todos', async (req, res) => {
-    try {
-      const {
-        description
-      } = req.body;
-      const newTodo = await pool.query(
-        //The $1 is the pg library that allows us to add dynamic data
-        //return * allows to return table after post so I can see json data in postman
-        'INSERT INTO todo (description) VALUES($1) RETURNING *',
-        [description]
-      );
-      res.json(newTodo.rows[0])
-    } catch (err) {
-      console.error(err.message)
-    }
-  })
-
-  app.get('/todos', async (req, res) => {
-    try {
-      const allTodos = await pool.query("SELECT * FROM todo")
-
-      res.json(allTodos.rows)
-    } catch (error) {
-      console.error(error.message);
-    }
-  })
-
-  app.get('/todos/:id', async (req, res) => {
-    try {
-      const {
-        id
-      } = req.params;
-      const todo = await pool.query("SELECT * FROM todo where todo_id = $1", [id])
-
-      res.json(todo)
-    } catch (error) {
-      console.error(error);
-    }
-  })
-
-  // update
-  app.put("/todos/:id", async (req, res) => {
-    try {
-      const {
-        id
-      } = req.params;
-      const {
-        description
-      } = req.body;
-      const updateTodo = await pool.query(
-        "UPDATE todo SET description = $1 WHERE todo_id = $2",
-        [description, id]
-      );
-
-      res.json("Todo was updated")
-    } catch (error) {
-      console.error(error);
-    }
-  })
-
-  app.delete("/todos/:id", async (req, res) => {
-    try {
-      const {
-        id
-      } = req.params;
-      const deleteTodo = await pool.query(
-        "DELETE FROM todo WHERE todo_id = $1",
-        [id]
-      );
-      res.json("Todo was deleted")
-    } catch (error) {
-      console.error(error);
-    }
-  })
-
-
 
 
 }
