@@ -5,7 +5,7 @@
 For this project I wanted to focus on using PostgreSQL for my database and on Schema Management/Database Architecture. In the back end I am running  Express with Node.js. 🚀
 
 
-![alt text](server/profile.png)
+![alt text](profile.png)
 
 ## Tech Used:
 - Node.js
