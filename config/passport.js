@@ -7,7 +7,7 @@ var passport = require("passport");
 
 var fs = require('fs');
 var request = require('request');
-// const { Pool, Client } = require('pg')
+const { Pool, Client } = require('pg')
 const bcrypt= require('bcrypt')
 const uuidv4 = require('uuid/v4');
 
@@ -18,20 +18,11 @@ const LocalStrategy = require('passport-local').Strategy;
 
 var currentAccountsData = [];
 const pool = require('./db');
-// app.use(flash())
-// const pool = new Pool({
-//   user: 'mauricioacosta',
-//   host: 'localhost',
-//   database: 'quickpound_postgres',
-//   port: 5432,
-// })
 
 module.exports = function (app) {
 
 	app.get('/', function (req, res, next) {
 		res.render('index', {title: "Home", userData: req.user, messages: {danger: req.flash('danger'), warning: req.flash('warning'), success: req.flash('success')}});
-
-		// console.log(req.user);
 	});
 
 
