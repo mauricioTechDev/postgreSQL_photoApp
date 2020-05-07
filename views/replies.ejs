@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../public/css/account.css">
+
+  <title></title>
+</head>
+
+<body>
+  <header>
+    <h1>FLIP FLOP</h1>
+    <span>
+      <a href="/account">PROFILE </a>
+    </span>
+    <span>
+      <a href="/newsfeed/<%=userData.user_id%>">/ FEED </a>
+    </span>
+    <span>
+      <a href="/logout">/ LOG OUT</a>
+    </span>
+
+  </header>
+
+
+
+  <section id='flex-container'>
+    <section>
+      <p>
+        <a href="/individualPicture/<%= comment[0].image_commented_on_id %>">BACK</a>
+      </p>
+      <h2><%= comment[0].comment %></h2>
+    </section>
+    <!-- ADD THE DESCRIPTION OF THE PICTURE -->
+  </section>
+  <section>
+    <form action="/commentReply" method="post">
+      <input type="hidden" name="img_replied_to_id" value="<%= comment[0].image_commented_on_id %>"">
+      <input type=" text" name="reply" placeholder="Comment">
+      <button type="submit">Comment</button>
+    </form>
+  </section>
+
+  <section>
+    <ul>
+      <% for(let i = 0; i < replies.length; i++) {%>
+      <li>
+        <p>
+          <% for(let j = 0; j < userNames.length; j++) { %>
+          <% if(userNames[j].user_id == replies[i].reply_user_id) { %>
+          <%= userNames[j].first_name %>
+          <% } %>
+          <% } %>
+        </p>
+        <span><%= replies[i].reply %></span>
+      </li>
+      <% } %>
+    </ul>
+  </section>
+
+  <script type="text/javascript" src="../public/newsFeed.js"></script>
+  <script type="text/javascript" src="../public/individualPicture.js"></script>
+</body>
+
+</html>

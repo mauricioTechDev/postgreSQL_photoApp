@@ -40,3 +40,15 @@ CREATE TABLE comments (
   FOREIGN KEY (commenter_user_id) REFERENCES user_account(user_id),
   FOREIGN KEY (image_commented_on_id ) REFERENCES img_post (img_post_id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE comment_replies (
+  comment_reply_id SERIAL PRIMARY KEY,
+  reply VARCHAR(300),
+  reply_likes INTEGER NOT NULL DEFAULT 0,
+  reply_user_id UUID,
+  comment_replied_to_id INT,
+  img_replied_to_id INT,
+  FOREIGN KEY (comment_replied_to_id) REFERENCES comments (comments_id) ON DELETE CASCADE,
+  FOREIGN KEY (img_replied_to_id) REFERENCES img_post (img_post_id) ON DELETE CASCADE
+)

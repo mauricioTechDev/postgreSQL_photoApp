@@ -203,7 +203,7 @@ const uploadS3 = multer({
         SELECT image_commented_on_id, count(image_commented_on_id)
         FROM comments GROUP BY image_commented_on_id`)
 
-      console.log(individualUserImg.rows);
+      // console.log(individualUserImg.rows);
       res.render('individualUserImg.ejs',{
         userData: req.user[0],
         individualUserImg: individualUserImg.rows,
@@ -259,7 +259,7 @@ const uploadS3 = multer({
   // ===============================
   app.get('/individualPicture/:picId', async (req, res) => {
     try {
-      console.log(typeof req._parsedOriginalUrl._raw);
+      // console.log(typeof req._parsedOriginalUrl._raw);
       let url = req._parsedOriginalUrl._raw
       let id;
       for(let i = url.length - 1; i > 0; i--){
@@ -279,7 +279,7 @@ const uploadS3 = multer({
         SELECT image_commented_on_id, count(image_commented_on_id)
         FROM comments GROUP BY image_commented_on_id`)
 
-      console.log('IDIVIDUAL PICTURE ROWS', individualPicture.rows);
+      // console.log('IDIVIDUAL PICTURE ROWS', individualPicture.rows);
       res.render('individualPicture.ejs', {
         userData: req.user[0],
         individualPicture: individualPicture.rows,
@@ -298,11 +298,11 @@ const uploadS3 = multer({
   app.post('/comment', async (req, res) => {
     try {
       let commenter_user_id = req.user[0].user_id
-      console.log('commenter user id',commenter_user_id);
+      // console.log('commenter user id',commenter_user_id);
       const { comment } = req.body
 
       // Getting the picture id
-      console.log(req);
+      // console.log(req);
       let url = req.headers.referer;
       let image_commented_on_id;
       for(let i = url.length - 1; i > 0; i--){
@@ -315,6 +315,82 @@ const uploadS3 = multer({
         INSERT INTO comments (comment, commenter_user_id, image_commented_on_id)
         VALUES ($1, $2, $3)`, [comment, commenter_user_id, image_commented_on_id])
       res.redirect(`/individualPicture/${image_commented_on_id}`)
+    } catch (err) {
+      console.error(err.message);
+    }
+  })
+
+
+
+  // =============================
+  // REPLY TO A COMMENT
+  // =============================
+  app.get('/replies/:commentId', async(req, res) => {
+    try {
+      let url = req._parsedOriginalUrl._raw
+
+      let comment_replied_to_id;
+      for(let i = url.length - 1; i > 0; i--){
+        if(url[i] == '/'){
+
+          comment_replied_to_id = Number(url.slice(i+1))
+          break;
+        }
+      };
+
+      const comment = await pool.query(`
+        SELECT * FROM comments
+        WHERE comments_id = $1`,
+        [comment_replied_to_id])
+        // console.log(comment);
+      // let picId = comment.rows[0].image_commented_on_id
+      const replies = await pool.query(`
+        SELECT
+        reply, reply_likes, reply_user_id, comment_replied_to_id, img_replied_to_id
+        FROM comment_replies
+        WHERE comment_replied_to_id = $1`,
+        [comment_replied_to_id])
+
+      const userNames = await pool.query(`SELECT user_id, first_name FROM user_account`)
+
+
+      res.render('replies.ejs', {
+        userData: req.user[0],
+        replies: replies.rows,
+        userNames: userNames.rows,
+        comment: comment.rows
+      })
+    } catch (err) {
+      console.error(err.message);
+    }
+  })
+
+  app.post('/commentReply', async (req, res) => {
+    try {
+      let reply_user_id = req.user[0].user_id
+      let reply = req.body.reply
+      let img_replied_to_id = Number(req.body.img_replied_to_id)
+      console.log(reply);
+
+      let url = req.headers.referer;
+      console.log(url);
+      let comment_replied_to_id;
+      for(let i = url.length - 1; i > 0; i--){
+        if(url[i] == '/'){
+          comment_replied_to_id = Number(url.slice(i+1))
+          break;
+        }
+      };
+      console.log(comment_replied_to_id);
+      console.log(img_replied_to_id);
+
+      const replyPost = await pool.query(`
+        INSERT INTO comment_replies
+        (reply, reply_user_id, comment_replied_to_id, img_replied_to_id)
+        VALUES ($1, $2, $3, $4)`,
+        [reply, reply_user_id, comment_replied_to_id, img_replied_to_id])
+
+      res.redirect(`/replies/${comment_replied_to_id}`)
     } catch (err) {
       console.error(err.message);
     }

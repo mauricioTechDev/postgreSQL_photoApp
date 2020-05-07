@@ -75,6 +75,9 @@
 
         </p>
         <span><%= individualPicture[i].comment %></span>
+        <span>
+          <a href="/replies/<%= individualPicture[i].comments_id %>">REPLY</a>
+        </span>
       </li>
       <% } %>
     </ul>
