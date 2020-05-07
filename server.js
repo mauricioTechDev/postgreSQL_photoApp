@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const AWS = require('aws-sdk')
 
 var passport = require('passport');
 var request = require('request');
@@ -16,6 +17,17 @@ const pool = require('./config/db')
 
 //img uploads
 var multer  = require('multer')
+const multerS3 = require('multer-s3');
+
+/*
+ * Configure the AWS region of the target bucket.
+ * Remember to change this to the relevant region.
+ */
+AWS.config.region = 'us-east-1'
+/*
+ * Load the S3 information from the environment variables.
+ */
+const S3_BUCKET = process.env.S3_BUCKET;
 
 
 //middleware
@@ -49,7 +61,7 @@ app.set('view options', { layout: false });
 
 
 require('./config/passport.js')(app);
-require('./app/routes.js')(app, pool, multer);
+require('./app/routes.js')(app, pool, multer, AWS, multerS3);
 
 var port = process.env.PORT || 3000
 

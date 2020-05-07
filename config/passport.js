@@ -77,7 +77,7 @@ module.exports = function (app) {
 				LEFT JOIN img_post
 				ON user_account.user_id = img_post.id_of_img_poster
 				WHERE user_account.email = $1`, [email])
-			// console.log(userInfo);
+			console.log(userInfo);
 			const commentCount = await pool.query(`SELECT image_commented_on_id, count(image_commented_on_id) FROM comments GROUP BY image_commented_on_id`)
 			let friendRequest = await pool.query(`
 				SELECT

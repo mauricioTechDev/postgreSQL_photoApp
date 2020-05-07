@@ -1,17 +1,44 @@
-module.exports = function(app, pool, multer) {
+require('dotenv').config();
 
-  var storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-      cb(null, 'public/img/img-uploads')
+
+module.exports = function(app, pool, multer, AWS, multerS3) {
+
+  const s3 = new AWS.S3({
+    credentials : {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+});
+// connect the AWS object instance with multer using the multer-s3 module as a storage object.
+const uploadS3 = multer({
+  storage: multerS3({
+    s3: s3,
+    acl: 'public-read',
+    bucket: process.env.S3_BUCKET,
+    // metadata() method is used to send additional data about the file we are uploading to Amazon
+    metadata: (req, file, cb) => {
+      cb(null, {fieldName: file.fieldname})
     },
-    filename: function(req, file, cb) {
-      cb(null, file.fieldname + '-' + Date.now() + ".png")
+    key: (req, file, cb) => {
+      cb(null, Date.now().toString() + '-' + file.originalname)
     }
   })
+});
 
-  var upload = multer({
-    storage: storage
-  })
+
+
+  // var storage = multer.diskStorage({
+  //   destination: function(req, file, cb) {
+  //     cb(null, 'public/img/img-uploads')
+  //   },
+  //   filename: function(req, file, cb) {
+  //     cb(null, file.fieldname + '-' + Date.now() + ".png")
+  //   }
+  // })
+  //
+  // var upload = multer({
+  //   storage: storage
+  // })
 
   app.get('/newsfeed/:id', async (req, res) => {
     try {
@@ -82,12 +109,13 @@ module.exports = function(app, pool, multer) {
 // =============================
 // ROUTE TO UPLOADE PICTURES
 // =============================
-  app.post('/profile', upload.single('file-to-upload'), async (req, res, next) => {
+  app.post('/profile', uploadS3.single('file-to-upload'), async (req, res, next) => {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
     try {
-      let { path } = req.file;
-      console.log(req.file);
+      let  location  = req.file.location;
+      console.log(location);
+      console.log('AMAZON',req.file);
       const { email, user_id } = req._passport.session.user[0]
       console.log(typeof user_id);
       const { description } = req.body
@@ -99,7 +127,7 @@ module.exports = function(app, pool, multer) {
 
       const picture = await pool.query(`
         INSERT INTO img_post (img, description, date_posted, id_of_img_poster)
-        VALUES ($1, $2, $3, $4)`, [path, description, fullDate, user_id])
+        VALUES ($1, $2, $3, $4)`, [location, description, fullDate, user_id])
       res.redirect('/account');
 
     } catch (err) {
@@ -112,19 +140,20 @@ module.exports = function(app, pool, multer) {
   // ROUTE TO UPLOADE PROFILE PICTURE
   // ================================
 
-  app.post('/profileAvatar', upload.single('file-to-upload'), async (req, res, next) => {
+  app.post('/profileAvatar', uploadS3.single('file-to-upload'), async (req, res, next) => {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
     try {
-      let { path } = req.file;
-      console.log(req.file);
+      let  location = req.file.location;
+      console.log(location);
+      // console.log('AMAZON ',req.file);
       const { email, user_id } = req._passport.session.user[0]
-      console.log(email, user_id);
+      // console.log(email, user_id);
 
       const picture = await pool.query(`
         UPDATE user_account
         SET profile_img = $1
-        WHERE email = $2;`,[path,email])
+        WHERE email = $2;`,[location,email])
       console.log(picture)
       // res.json(picture)
       res.redirect('/account');
