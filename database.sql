@@ -51,4 +51,4 @@ CREATE TABLE comment_replies (
   img_replied_to_id INT,
   FOREIGN KEY (comment_replied_to_id) REFERENCES comments (comments_id) ON DELETE CASCADE,
   FOREIGN KEY (img_replied_to_id) REFERENCES img_post (img_post_id) ON DELETE CASCADE
-)
+);

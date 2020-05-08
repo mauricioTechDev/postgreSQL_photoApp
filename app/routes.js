@@ -25,21 +25,6 @@ const uploadS3 = multer({
   })
 });
 
-
-
-  // var storage = multer.diskStorage({
-  //   destination: function(req, file, cb) {
-  //     cb(null, 'public/img/img-uploads')
-  //   },
-  //   filename: function(req, file, cb) {
-  //     cb(null, file.fieldname + '-' + Date.now() + ".png")
-  //   }
-  // })
-  //
-  // var upload = multer({
-  //   storage: storage
-  // })
-
   app.get('/newsfeed/:id', async (req, res) => {
     try {
       const newsFeed = await pool.query(`
@@ -51,12 +36,10 @@ const uploadS3 = multer({
         ON img_post.id_of_img_poster = user_account.user_id
         ORDER BY img_post.img_post_id DESC
         `)
-      console.log(newsFeed.rows);
       const commentCount = await pool.query(`
         SELECT image_commented_on_id, count(image_commented_on_id)
         FROM comments
         GROUP BY image_commented_on_id`)
-      console.log(commentCount.rows);
       res.render('newsFeed.ejs',{
         userData: req.user[0],
         newsFeed: newsFeed.rows,
@@ -69,9 +52,7 @@ const uploadS3 = multer({
   })
   app.put('/newsfeed/addHeart', async(req, res) =>{
     try {
-      console.log(req.body);
       let pictureId = Number(req.body.pictureId)
-      console.log(pictureId);
 
       const heartPicture = await pool.query(`
         UPDATE img_post
@@ -87,17 +68,12 @@ const uploadS3 = multer({
   })
   app.put('/individualPicture/addHeart', async(req, res) =>{
     try {
-      console.log(req.body);
       let pictureId = Number(req.body.pictureId)
-      console.log(pictureId);
-      //The $1 is the pg library that allows us to add dynamic data
       const heartPicture = await pool.query(`
         UPDATE img_post
         SET img_likes = img_likes + 1
         WHERE img_post_id = $1`, [pictureId])
       // UPDATE counters SET current_value = current_value + 1 WHERE counter_name = 'whatever';
-      console.log(heartPicture);
-
     } catch (err) {
       console.error(err.message);
 
@@ -110,14 +86,9 @@ const uploadS3 = multer({
 // ROUTE TO UPLOADE PICTURES
 // =============================
   app.post('/profile', uploadS3.single('file-to-upload'), async (req, res, next) => {
-    // req.file is the `avatar` file
-    // req.body will hold the text fields, if there were any
     try {
       let  location  = req.file.location;
-      console.log(location);
-      console.log('AMAZON',req.file);
       const { email, user_id } = req._passport.session.user[0]
-      console.log(typeof user_id);
       const { description } = req.body
       let date_ob = new Date();
       let date = date_ob.getDate();
@@ -141,14 +112,9 @@ const uploadS3 = multer({
   // ================================
 
   app.post('/profileAvatar', uploadS3.single('file-to-upload'), async (req, res, next) => {
-    // req.file is the `avatar` file
-    // req.body will hold the text fields, if there were any
     try {
       let  location = req.file.location;
-      console.log(location);
-      // console.log('AMAZON ',req.file);
       const { email, user_id } = req._passport.session.user[0]
-      // console.log(email, user_id);
 
       const picture = await pool.query(`
         UPDATE user_account
@@ -165,10 +131,7 @@ const uploadS3 = multer({
   app.delete("/individualUserImg/deletePicture", async (req, res) => {
     try {
       const pictureId = Number(req.body.pictureId);
-      console.log(req.body);
-      console.log('PICTURE ID', pictureId);
       const { email, user_id } = req._passport.session.user[0]
-      console.log('USER ID', user_id);
       const deleteTodo = await pool.query(
         `DELETE FROM img_post
         WHERE img_post_id = $1 AND id_of_img_poster = $2`,
@@ -182,7 +145,6 @@ const uploadS3 = multer({
 
   app.get('/individualUserImg/:id', async (req, res) => {
     try {
-      // console.log(req.user);
       let url = req._parsedOriginalUrl._raw
       let id;
       for(let i = url.length - 1; i > 0; i--){
@@ -191,7 +153,7 @@ const uploadS3 = multer({
           break;
         }
       }
-      // console.log(newsFeed.rows);
+
       const individualUserImg = await pool.query(`
         SELECT * FROM img_post
         FULL JOIN comments
@@ -201,7 +163,8 @@ const uploadS3 = multer({
       const userNames = await pool.query(`SELECT user_id, first_name FROM user_account`)
       const commentCount = await pool.query(`
         SELECT image_commented_on_id, count(image_commented_on_id)
-        FROM comments GROUP BY image_commented_on_id`)
+        FROM comments
+        GROUP BY image_commented_on_id`)
 
       // console.log(individualUserImg.rows);
       res.render('individualUserImg.ejs',{
@@ -216,17 +179,12 @@ const uploadS3 = multer({
   })
   app.put('/individualUserImg/addHeart', async(req, res) =>{
     try {
-      console.log(req.body);
       let pictureId = Number(req.body.pictureId)
-      console.log(pictureId);
-
       const heartPicture = await pool.query(`
         UPDATE img_post
         SET img_likes = img_likes + 1
         WHERE img_post_id = $1`, [pictureId])
       // UPDATE counters SET current_value = current_value + 1 WHERE counter_name = 'whatever';
-      console.log(heartPicture);
-
     } catch (err) {
       console.error(err.message);
 
@@ -246,7 +204,6 @@ const uploadS3 = multer({
         userInfo: userInfo.rows[0]
       })
 
-
     } catch (error) {
       console.error(error);
     }
@@ -259,7 +216,6 @@ const uploadS3 = multer({
   // ===============================
   app.get('/individualPicture/:picId', async (req, res) => {
     try {
-      // console.log(typeof req._parsedOriginalUrl._raw);
       let url = req._parsedOriginalUrl._raw
       let id;
       for(let i = url.length - 1; i > 0; i--){
@@ -273,20 +229,19 @@ const uploadS3 = multer({
         FULL JOIN comments
         ON img_post.img_post_id = comments.image_commented_on_id
         WHERE img_post.img_post_id = $1`, [id])
-      const userNames = await pool.query(`SELECT user_id, first_name FROM user_account`)
-      // console.log(userNames);
+      const userNames = await pool.query(`
+        SELECT user_id, first_name
+        FROM user_account`)
       const commentCount = await pool.query(`
         SELECT image_commented_on_id, count(image_commented_on_id)
         FROM comments GROUP BY image_commented_on_id`)
 
-      // console.log('IDIVIDUAL PICTURE ROWS', individualPicture.rows);
       res.render('individualPicture.ejs', {
         userData: req.user[0],
         individualPicture: individualPicture.rows,
         userNames: userNames.rows,
         commentCount: commentCount.rows
       })
-
     } catch (err) {
       console.error(err.message);
     }
@@ -298,11 +253,7 @@ const uploadS3 = multer({
   app.post('/comment', async (req, res) => {
     try {
       let commenter_user_id = req.user[0].user_id
-      // console.log('commenter user id',commenter_user_id);
       const { comment } = req.body
-
-      // Getting the picture id
-      // console.log(req);
       let url = req.headers.referer;
       let image_commented_on_id;
       for(let i = url.length - 1; i > 0; i--){
@@ -332,28 +283,23 @@ const uploadS3 = multer({
       let comment_replied_to_id;
       for(let i = url.length - 1; i > 0; i--){
         if(url[i] == '/'){
-
           comment_replied_to_id = Number(url.slice(i+1))
           break;
         }
       };
-
       const comment = await pool.query(`
         SELECT * FROM comments
         WHERE comments_id = $1`,
         [comment_replied_to_id])
-        // console.log(comment);
-      // let picId = comment.rows[0].image_commented_on_id
       const replies = await pool.query(`
         SELECT
         reply, reply_likes, reply_user_id, comment_replied_to_id, img_replied_to_id
         FROM comment_replies
         WHERE comment_replied_to_id = $1`,
         [comment_replied_to_id])
-
-      const userNames = await pool.query(`SELECT user_id, first_name FROM user_account`)
-
-
+      const userNames = await pool.query(`
+        SELECT user_id, first_name
+        FROM user_account`)
       res.render('replies.ejs', {
         userData: req.user[0],
         replies: replies.rows,
@@ -370,10 +316,8 @@ const uploadS3 = multer({
       let reply_user_id = req.user[0].user_id
       let reply = req.body.reply
       let img_replied_to_id = Number(req.body.img_replied_to_id)
-      console.log(reply);
 
       let url = req.headers.referer;
-      console.log(url);
       let comment_replied_to_id;
       for(let i = url.length - 1; i > 0; i--){
         if(url[i] == '/'){
@@ -381,8 +325,6 @@ const uploadS3 = multer({
           break;
         }
       };
-      console.log(comment_replied_to_id);
-      console.log(img_replied_to_id);
 
       const replyPost = await pool.query(`
         INSERT INTO comment_replies
@@ -401,8 +343,6 @@ const uploadS3 = multer({
 
   app.post('/individualPicture/friendReguest', async (req, res) => {
     try {
-      console.log(req.body);
-      console.log(req.user);
       let requesterid = req.user[0].user_id;
       let addresseeid = req.body.id_of_img_poster;
       let status = 'PENDING'
@@ -413,8 +353,6 @@ const uploadS3 = multer({
         friends (requesterid, addresseeid, status)
         VALUES ($1, $2, $3)`,
         [requesterid, addresseeid, status])
-        console.log(friendReguest);
-
     } catch (err) {
       console.error(err.message);
     }
@@ -422,7 +360,6 @@ const uploadS3 = multer({
 
   app.put('/acceptRequest', async (req, res) => {
     try {
-      console.log(req.body);
       let friends_id = Number(req.body.friendReguestId)
 
       const updateFriendStatus = await pool.query(`
@@ -430,7 +367,6 @@ const uploadS3 = multer({
         SET status = 'ACCEPTED'
         WHERE friends_id = $1`,
         [friends_id])
-        console.log(updateFriendStatus);
     } catch (err) {
       console.error(err.message);
     }
@@ -438,7 +374,6 @@ const uploadS3 = multer({
 
   app.put('/declineRequest', async (req, res) => {
     try {
-      console.log(req.body);
       let friends_id = Number(req.body.friendReguestId)
 
       const updateFriendStatus = await pool.query(`
@@ -446,7 +381,6 @@ const uploadS3 = multer({
         SET status = 'DECLINE'
         WHERE friends_id = $1`,
         [friends_id])
-        console.log(updateFriendStatus);
     } catch (err) {
       console.error(err.message);
     }
@@ -455,7 +389,6 @@ const uploadS3 = multer({
   app.get('/friend/:friendId', async(req, res) => {
     try {
       let url = req._parsedOriginalUrl._raw
-      console.log(url);
       let friendId;
       for(let i = url.length - 1; i > 0; i--){
         if(url[i] == '/'){
@@ -463,24 +396,21 @@ const uploadS3 = multer({
           break;
         }
       }
-      // console.log(friendId);
       const friend = await pool.query(`
         SELECT * FROM user_account
         WHERE user_id = $1`,[friendId])
-        // console.log('Friend Info', friend);
       const friendsPicture = await pool.query(`
         SELECT * FROM img_post
         WHERE id_of_img_poster = $1`, [friendId])
-        // console.log('Friends pictures', friendsPicture);
       const commentCount = await pool.query(`
-          SELECT image_commented_on_id, count(image_commented_on_id)
-          FROM comments
-          GROUP BY image_commented_on_id`)
-        res.render('friends.ejs',{
-          userData: req.user[0],
-          friend: friend.rows[0],
-          friendsPicture: friendsPicture.rows,
-          commentCount: commentCount.rows
+        SELECT image_commented_on_id, count(image_commented_on_id)
+        FROM comments
+        GROUP BY image_commented_on_id`)
+      res.render('friends.ejs',{
+        userData: req.user[0],
+        friend: friend.rows[0],
+        friendsPicture: friendsPicture.rows,
+        commentCount: commentCount.rows
         })
     } catch (err) {
       console.error(err.message);
@@ -489,22 +419,15 @@ const uploadS3 = multer({
 
   app.put('/friend/addHeart', async(req, res) =>{
     try {
-      console.log(req.body);
       let pictureId = Number(req.body.pictureId)
-      console.log(pictureId);
 
       const heartPicture = await pool.query(`
         UPDATE img_post
         SET img_likes = img_likes + 1
         WHERE img_post_id = $1`, [pictureId])
       // UPDATE counters SET current_value = current_value + 1 WHERE counter_name = 'whatever';
-      console.log(heartPicture);
-
     } catch (err) {
       console.error(err.message);
-
     }
   })
-
-
 }
