@@ -1,0 +1,39 @@
+.container{
+  display: flex;
+  height: auto;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2%;
+  background-color: orange;
+}
+.child {
+  width: min-content;;
+    margin: auto;
+    padding: 2%;
+    border: 20px solid gray;
+    background-color: white;
+}
+
+.welcomeTitle{
+  font-size: 6.5rem;
+}
+
+.logIn, .signUp{
+  font-size: 2rem;
+  width: -webkit-fill-available;
+      margin: 5%;
+}
+.form-control{
+  flex-direction: column;
+    /* height: 32%; */
+    font-size: 2rem;
+    margin: 3%;
+}
+.signupForm{
+  width: min-content;
+    margin: auto;
+    padding: 3%;
+    height: 54%;
+    /* border: 20px solid gray; */
+    background-color: white;
+}

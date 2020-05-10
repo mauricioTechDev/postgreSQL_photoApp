@@ -62,8 +62,8 @@ app.set('view options', { layout: false });
 
 require('./config/passport.js')(app);
 require('./app/routes.js')(app, pool, multer, AWS, multerS3);
-
-var port = process.env.PORT || 3000
+// CHANGED PORT NAME
+var port = process.env.PORT || 5000
 
 
 

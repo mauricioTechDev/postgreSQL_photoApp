@@ -32,18 +32,23 @@ module.exports = function (app) {
 
 
 	app.post('/join', async function (req, res) {
-    console.log(req.body);
 		try{
 			const client = await pool.connect()
 			await client.query('BEGIN')
 			var pwd = await bcrypt.hash(req.body.password, 5);
-			await JSON.stringify(client.query('SELECT user_id FROM user_account WHERE email = $1', [req.body.username], function(err, result) {
+			await JSON.stringify(client.query(`
+				SELECT user_id
+				FROM user_account
+				WHERE email = $1`, [req.body.username], function(err, result) {
 				if(result.rows[0]){
 					req.flash('loginMessage', 'This email address is already registered');
 					res.redirect('/join');
 				}
 				else{
-					client.query('INSERT INTO user_account (user_id, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5)', [uuidv4(), req.body.firstName, req.body.lastName, req.body.username, pwd], function(err, result) {
+					client.query(`
+						INSERT INTO user_account (user_id, first_name, last_name, email, password)
+						VALUES ($1, $2, $3, $4, $5)`,
+						[uuidv4(), req.body.firstName, req.body.lastName, req.body.username, pwd], function(err, result) {
 						if(err){console.log(err);}
 						else {
 
@@ -63,9 +68,9 @@ module.exports = function (app) {
 	});
 
 	app.get('/account', async (req, res, next) => {
-    // console.log(req);
+		// console.log(req);
 		if(req.isAuthenticated()){
-      // console.log(req.user[0]);
+      console.log(req.user[0]);
       let { email, user_id } = req.user[0]
       console.log(email, user_id);
 
@@ -77,7 +82,7 @@ module.exports = function (app) {
 				LEFT JOIN img_post
 				ON user_account.user_id = img_post.id_of_img_poster
 				WHERE user_account.email = $1`, [email])
-			console.log(userInfo);
+			// console.log(userInfo);
 			const commentCount = await pool.query(`SELECT image_commented_on_id, count(image_commented_on_id) FROM comments GROUP BY image_commented_on_id`)
 			let friendRequest = await pool.query(`
 				SELECT
@@ -100,8 +105,6 @@ module.exports = function (app) {
 				WHERE friends.addresseeid = $1 AND friends.status = 'ACCEPTED'`, [user_id])
 				// console.log('Friends List', friendsList);
 
-
-      // console.log(userInfo.rows);
 			res.render('account', {
         title: "Account",
         userInfo: userInfo.rows,
@@ -122,10 +125,7 @@ module.exports = function (app) {
 	});
 
 	app.get('/login', function (req, res, next) {
-		// console.log(req);
 		if (req.isAuthenticated()) {
-
-
 			res.redirect('/account');
 		}
 		else{
@@ -135,7 +135,6 @@ module.exports = function (app) {
 	});
 
 	app.get('/logout', function(req, res){
-
 		console.log(req.isAuthenticated());
 		req.logout();
 		console.log(req.isAuthenticated());
@@ -144,7 +143,7 @@ module.exports = function (app) {
 	});
 
 	app.post('/login',	passport.authenticate('local', {
-		successRedirect: '/account',
+		// successRedirect: '/account',
 		failureRedirect: '/login',
 		failureFlash: true
 		}), function(req, res) {
@@ -157,13 +156,9 @@ module.exports = function (app) {
 		}
 		res.redirect('/');
 	});
-
-
-
 }
 
 passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, username, password, done) => {
-
 	loginAttempt();
 	async function loginAttempt() {
 
@@ -177,7 +172,7 @@ passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, usern
 					return done(err)
 				}
 				if(result.rows[0] == null){
-					req.flash('danger', "Oops. Incorrect login details.");
+					// req.flash('danger', "Oops. Incorrect login details.");
 					return done(null, false);
 				}
 				else{
@@ -190,17 +185,15 @@ passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, usern
 							return done(null, [{email: result.rows[0].email, user_id: result.rows[0].user_id}]);
 						}
 						else{
-							req.flash('danger', "Oops. Incorrect login details.");
+							// req.flash('danger', "Oops. Incorrect login details.");
 							return done(null, false);
 						}
 					});
 				}
 			}))
 		}
-
 		catch(e){throw (e);}
 	};
-
 }
 ))
 
