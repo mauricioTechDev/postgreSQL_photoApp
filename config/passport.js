@@ -9,11 +9,14 @@ var fs = require('fs');
 var request = require('request');
 const { Pool, Client } = require('pg')
 const bcrypt= require('bcrypt')
+const jwtSecret = require('./jwtConfig')
 const uuidv4 = require('uuid/v4');
 
 app.use(express.static('public'));
 
 const LocalStrategy = require('passport-local').Strategy;
+const JWTstrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 // var flash    = require('connect-flash');
 
 var currentAccountsData = [];
@@ -68,7 +71,8 @@ module.exports = function (app) {
 	});
 
 	app.get('/account', async (req, res, next) => {
-		// console.log(req);
+		console.log(req.user);
+		console.log(req.isAuthenticated());
 		if(req.isAuthenticated()){
       console.log(req.user[0]);
       let { email, user_id } = req.user[0]
@@ -142,8 +146,8 @@ module.exports = function (app) {
 		res.redirect('/');
 	});
 
-	app.post('/login',	passport.authenticate('local', {
-		// successRedirect: '/account',
+	app.post('/login', passport.authenticate('local', {
+		successRedirect: '/account',
 		failureRedirect: '/login',
 		failureFlash: true
 		}), function(req, res) {
@@ -159,6 +163,8 @@ module.exports = function (app) {
 }
 
 passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, username, password, done) => {
+	// console.log(username);
+	// console.log(password);
 	loginAttempt();
 	async function loginAttempt() {
 
@@ -182,9 +188,12 @@ passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, usern
 							return done();
 						}
 						else if (check){
+							console.log('EVERYHTING IS GOOD');
+							console.log({email: result.rows[0].email, user_id: result.rows[0].user_id});
 							return done(null, [{email: result.rows[0].email, user_id: result.rows[0].user_id}]);
 						}
 						else{
+							console.log('danger', "Oops. Incorrect login details.");
 							// req.flash('danger', "Oops. Incorrect login details.");
 							return done(null, false);
 						}
@@ -196,6 +205,37 @@ passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, usern
 	};
 }
 ))
+// THE MAGIC FOR KEYSS
+const opts = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme('JWT'),
+  secretOrKey: jwtSecret.secret,
+};
+
+// This is the authentication that’s called on the protected routes in the application:
+passport.use(
+  'jwt',
+  new JWTstrategy(opts, async (jwt_payload, done) => {
+
+		const client = await pool.connect()
+		try{
+			await client.query('BEGIN')
+			var currentAccountsData = await JSON.stringify(client.query('SELECT user_id, first_name, email, password FROM user_account WHERE email = $1', [jwt_payload.id], function(err, result) {
+
+				if(err) {
+					return done(err)
+				}
+				if(result.rows[0] == null){
+					// req.flash('danger', "Oops. Incorrect login details.");
+				  done(null, false);
+				} else {
+				  done(null, [{email: result.rows[0].email, user_id: result.rows[0].user_id}]);
+				}
+			}))
+		}
+		catch(e){throw (e);}
+  }),
+);
+
 
 
 

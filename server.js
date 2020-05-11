@@ -31,7 +31,7 @@ const S3_BUCKET = process.env.S3_BUCKET;
 
 
 //middleware
-app.use(cors());
+app.use(cors({credentials:true, origin:"http://localhost:3000"}));
 // set up our express application
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
@@ -68,7 +68,7 @@ var port = process.env.PORT || 5000
 
 
 app.listen(port, () => {
-  console.log('Server 3000 is on fire!!!')
+  console.log(`Server ${ port } is on fire!!!` )
 })
 
 //20

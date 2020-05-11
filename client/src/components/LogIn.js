@@ -9,13 +9,14 @@ function LogIn(){
     event.preventDefault();
     try{
       const body = {username, password}
+      console.log(body)
       const response = await fetch('http://localhost:5000/login',{
         method: 'POST',
+        credentials : 'same-origin',
         headers: { 'Content-Type' : 'application/json' },
         body: JSON.stringify(body)
       })
-      const parseRes = await response.json()
-      console.log(parseRes)
+      console.log(response)
     } catch (error) {
       console.error(error.message)
     }
@@ -32,6 +33,7 @@ function LogIn(){
       <form className='signupForm' onSubmit={onSubmitForm} >
         <input
           name='username'
+          value={username}
           type='text'
           placeholder='Email'
           className="form-control"
@@ -43,6 +45,7 @@ function LogIn(){
           type='password'
           placeholder='Password'
           className="form-control"
+          value={password}
           onChange={event =>setPassword(event.target.value)}
           required>
         </input>
